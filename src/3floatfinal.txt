@@ -1,0 +1,76 @@
+#include <stdio.h>
+#include <math.h>
+
+float dist(double *p1, double *p2);
+float norm(double *mat);
+void inv(float *mat, float *inv, float norm);
+void matmult(float *mat1, float *mat2, float *result);
+
+int main()
+{
+    float d = 0.00001;
+    float ds, dprev, dsprev;
+
+    float A[4] = {1.0, 1.0, 1.0, 1.00001};
+    float b[2] = {2.0, 2.00001 + d};
+    
+    float invA[4];
+    inv(A, invA, norm(A));
+    
+    float result1[2] = {1.0, 1.0}; // Coordinates for b = {2.0, 2.00001}
+    
+    float result2[2];          // Coordinates for b = {2.0, 2.00001 + d}
+    matmult(invA, b, result2);
+
+    ds = dist(result1, result2);
+
+    while (ds > 0.000001)
+    {
+        dprev = d;
+        dsprev = ds;
+
+        d /= 2;
+        b[1] = 2.00001 + d;
+
+        matmult(invA, b, result2);
+
+        ds = dist(result1, result2);
+    }
+
+    printf("last D =\t%.20f\nDist =\t\t%.7f\n\nstopping D =\t%.20f\nDist =\t\t%.7f\n", dprev, dsprev, d, ds);
+
+    return 0;
+}
+
+// Calculates the distance between two 2D points
+float dist(double *p1, double *p2)
+{
+    return sqrt(pow((p1[0] - p2[0]), 2) + pow((p1[1] - p2[1]), 2));
+}
+
+// Calculates the norm of a 2x2 matrix
+float norm(double *mat)
+{
+    return mat[0] * mat[3] - mat[1] * mat[2];
+}
+
+// Calculates the inverse of a 2x2 matrix and stores result inside 2x2 matrix "inv"
+void invfloat *mat, float *inv, float norm)
+{
+    inv[0] = mat[3]/norm;
+    inv[1] = -mat[1]/norm;
+    inv[2] = -mat[2]/norm;
+    inv[3] = mat[0]/norm;
+}
+
+// Multiplies a 2x2 and a 2x1 matrix and stores result inside 2x1 matrix "result"
+void matmultfloat *mat1, float *mat2, float *result)
+{
+    result[0] = mat1[0] * mat2[0] + mat1[1] * mat2[1];
+    result[1] = mat1[2] * mat2[0] + mat1[3] * mat2[1];
+}
+
+
+//Тип данных float не имеет достаточной точности для успешного уменьшения значения "d" таким образом, чтобы расстояние не превышало 10 ^ (- 6)
+//Программа остановится при d =  0.0000000000238420
+//значение «d», для которого расстояние не превышает 10 ^ -6, выходит за пределы точности типа данных с плавающей запятой. Таким образом, необходимо использовать тип данных double
